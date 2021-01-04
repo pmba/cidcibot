@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Twitter = require("twitter");
-const Request = require("request");
-const moment = require("moment-timezone");
+
+const { url2data } = require("../functions/url2data");
 
 require("dotenv").config();
 
@@ -12,8 +12,6 @@ const twitterConfig = {
   access_token_key: process.env.ACCESS_TOKEN_KEY,
   access_token_secret: process.env.ACCESS_TOKEN_SECRET,
 };
-
-console.log(twitterConfig);
 
 const TT = new Twitter(twitterConfig);
 
@@ -43,24 +41,45 @@ router.get("/status", (req, res) => {
 router.post("/on", validation, (req, res) => {
   console.log(`Tá online: ${req.body.game}, ${Date.now()}`);
 
-  TT.post(
-    "statuses/update",
-    {
-      status: `@naosalvo \nA Stream começou XET!\n
-                \n${req.body.channelUrl}
-                \n${req.body.game}`,
-    },
-    (error, tweet, response) => {
-      if (error) throw error;
-      else {
-        res.json({
-          statusCode: 200,
-          statusMsg: "Postado no Twitter",
-          time: tweet.created_at,
+  url2data(req.body.streamPreview, (err, data) => {
+    if (err) return res.json({ message: "Error on url2Data", error: err });
+
+    TT.post(
+      "media/upload",
+      { media: data },
+      (mediaErr, mediaTweet, mediaRes) => {
+        if (mediaErr) {
+          return res.json({
+            message: "Error on media upload",
+            error: mediaErr,
+            res: mediaRes,
+          });
+        }
+
+        const status = {
+          status: `@naosalvo \n🔥 A Stream começou XET!\n
+                  \n${req.body.channelUrl}
+                  \n${req.body.game}`,
+          media_ids: mediaTweet.media_id_string,
+        };
+
+        TT.post("statuses/update", status, (statusErr, tweet, response) => {
+          if (statusErr) {
+            return res.json({
+              message: "Error on statuses/update",
+              error: statusErr,
+            });
+          } else {
+            res.json({
+              statusCode: 200,
+              statusMsg: "Postado no Twitter",
+              time: tweet.created_at,
+            });
+          }
         });
       }
-    }
-  );
+    );
+  });
 });
 
 module.exports = router;

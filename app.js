@@ -15,4 +15,4 @@ app.use(bodyParser.json());
 
 app.use("/cidcibot", require("./routes/webhook"));
 
-app.listen(Port, () => console.log("Salve galerinha!"));
+app.listen(Port, () => console.log(`Rodando na porta [${Port}]`));
