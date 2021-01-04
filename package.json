@@ -1,7 +1,7 @@
 {
-  "name": "taonzoka",
+  "name": "cidcibot",
   "version": "1.0.0",
-  "description": "Alanzoka ta on? Deixa que eu te aviso.",
+  "description": "",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js"
