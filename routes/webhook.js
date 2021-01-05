@@ -3,6 +3,7 @@ const router = express.Router();
 const Twitter = require("twitter");
 
 const { url2data } = require("../functions/url2data");
+const strings = require("../strings/strings");
 
 require("dotenv").config();
 
@@ -57,7 +58,9 @@ router.post("/on", validation, (req, res) => {
         }
 
         const status = {
-          status: `@naosalvo \n🔥 A Stream começou XET!\n
+          status: `${
+            strings[Math.floor(Math.random() * strings.length)]
+          }\n@naosalvo 🔥\n
                   \n${req.body.channelUrl}
                   \n${req.body.game}`,
           media_ids: mediaTweet.media_id_string,
